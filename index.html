@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tap Coin Web App</title>
+    <title>Tap Coin</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -23,14 +23,22 @@
             backdrop-filter: blur(10px);
             margin: auto;
         }
-        h1 {
-            font-size: 24px;
+        .coin {
+            font-size: 50px;
+            margin: 20px 0;
+            cursor: pointer;
         }
-        .info {
-            font-size: 18px;
+        .balance {
+            font-size: 20px;
+            font-weight: bold;
             margin: 10px 0;
         }
-        button {
+        .menu {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .menu button {
             background: #ffcc00;
             color: black;
             border: none;
@@ -38,50 +46,67 @@
             font-size: 18px;
             cursor: pointer;
             border-radius: 8px;
-            margin-top: 15px;
+            width: 30%;
         }
-        button:hover {
+        .menu button:hover {
             background: #ffdd33;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎉 Tap Coin tizimi!</h1>
-        <p class="info">Foydalanuvchi balansini ko‘rish va coin to‘plash.</p>
-        <p class="info" id="userBalance">Balans: <b>0</b> TAP Coin</p>
-        <button onclick="earnCoin()">💰 Tap Coin to‘plash</button>
-        <button onclick="useCoin()">💸 Tap Coin ishlatish</button>
+        <h1>🎉 Tap Coin!</h1>
+        <div class="coin" onclick="earnCoin()">🪙</div>
+        <p class="balance">Balans: <span id="userBalance">0</span> TAP</p>
+
+        <div class="menu">
+            <button onclick="earnCoin()">🎯 Tap</button>
+            <button onclick="upgrade()">⚡ Upgrade</button>
+            <button onclick="airdrop()">🎁 Airdrop</button>
+        </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Ekranni to'liq ochish
+        tg.expand();
 
-        // Foydalanuvchi balansini olish (localStorage orqali)
-        let userBalance = localStorage.getItem("coinBalance");
-        if (!userBalance) {
-            userBalance = 0;  // Agar foydalanuvchi hali coin yig‘magan bo‘lsa, balansni 0 qilib o‘rnatamiz.
-        }
-        document.getElementById("userBalance").innerHTML = `Balans: <b>${userBalance}</b> TAP Coin`;
+        // Coin balansini localStorage'da saqlash
+        let balance = localStorage.getItem("tapCoinBalance") ? parseInt(localStorage.getItem("tapCoinBalance")) : 0;
+        let tapPower = localStorage.getItem("tapPower") ? parseInt(localStorage.getItem("tapPower")) : 1;
 
-        // Coin to‘plash funksiyasi
+        // Balansni ekranga chiqarish
+        document.getElementById("userBalance").innerText = balance;
+
+        // TAP - Coin bosish
         function earnCoin() {
-            userBalance = parseInt(userBalance) + 1;  // 1 coin qo‘shish
-            localStorage.setItem("coinBalance", userBalance);
-            document.getElementById("userBalance").innerHTML = `Balans: <b>${userBalance}</b> TAP Coin`;
-            alert("✅ Siz 1 TAP Coin to‘pladingiz!");
+            balance += tapPower;
+            localStorage.setItem("tapCoinBalance", balance);
+            document.getElementById("userBalance").innerText = balance;
         }
 
-        // Coin ishlatish funksiyasi
-        function useCoin() {
-            if (userBalance > 0) {
-                userBalance = parseInt(userBalance) - 1;  // 1 coin ayirish
-                localStorage.setItem("coinBalance", userBalance);
-                document.getElementById("userBalance").innerHTML = `Balans: <b>${userBalance}</b> TAP Coin`;
-                alert("✅ Siz 1 TAP Coin ishlatdingiz!");
+        // UPGRADE - Tezlashtirish
+        function upgrade() {
+            if (balance >= 100) { // Upgrade 100 coin turadi
+                balance -= 100;
+                tapPower += 1; // Har bir upgrade'da tap kuchayadi
+                localStorage.setItem("tapCoinBalance", balance);
+                localStorage.setItem("tapPower", tapPower);
+                document.getElementById("userBalance").innerText = balance;
+                alert("✅ Upgrade qildingiz! Endi har bosishda " + tapPower + " TAP Coin yig‘asiz!");
             } else {
-                alert("❌ Balansda coin mavjud emas!");
+                alert("❌ Upgrade uchun yetarli TAP Coin yo‘q!");
+            }
+        }
+
+        // AIRDROP - 1000 TAP yechish
+        function airdrop() {
+            if (balance >= 1000) {
+                balance -= 1000;
+                localStorage.setItem("tapCoinBalance", balance);
+                document.getElementById("userBalance").innerText = balance;
+                alert("✅ Siz 1000 TAP Coin yig‘ib oldingiz!");
+            } else {
+                alert("❌ Airdrop olish uchun kamida 1000 TAP Coin yig‘ing!");
             }
         }
     </script>
