@@ -66,7 +66,6 @@
         </div>
 
         <div class="menu">
-            <button onclick="viewLeaderboard()">🏆 Liderlar</button>
             <button onclick="sendCoins()">📤 Coin yuborish</button>
             <button onclick="showCabinet()">👤 Kabinet</button>
         </div>
@@ -77,111 +76,78 @@
         tg.expand();
 
         let userId = tg.initDataUnsafe?.user?.id || "guest";
-        let botToken = "7317303145:AAFhzdI7lAgHvmmvS1l92vz-oLnlVH9Mk4A";  // Bot tokeningizni shu yerga kiriting
-        let chatId = tg.initDataUnsafe?.user?.id; // Foydalanuvchi ID'si
+        let botToken = "7317303145:AAFhzdI7lAgHvmmvS1l92vz-oLnlVH9Mk4A";
+        let chatId = tg.initDataUnsafe?.user?.id;
 
         let balance = parseInt(localStorage.getItem(userId + "_balance")) || 0;
         let tapPower = parseInt(localStorage.getItem(userId + "_tapPower")) || 1;
-        let airdropHistory = JSON.parse(localStorage.getItem(userId + "_airdrops")) || [];
-        let aerBalance = parseInt(localStorage.getItem(userId + "_aer_balance")) || 0; // AER coin balansi
+        let aerBalance = parseInt(localStorage.getItem(userId + "_aer_balance")) || 0;
 
         document.getElementById("userBalance").innerText = balance;
 
         function saveBalance() {
             localStorage.setItem(userId + "_balance", balance);
             localStorage.setItem(userId + "_tapPower", tapPower);
-            localStorage.setItem(userId + "_airdrops", JSON.stringify(airdropHistory));
-            localStorage.setItem(userId + "_aer_balance", aerBalance);  // AER coin balansi saqlanadi
+            localStorage.setItem(userId + "_aer_balance", aerBalance);
         }
 
         function earnCoin() {
             balance += tapPower;
             saveBalance();
             document.getElementById("userBalance").innerText = balance;
-        }
 
-        function upgrade() {
-            if (balance >= 100) {
-                balance -= 100;
-                tapPower += 1;
-                saveBalance();
-                document.getElementById("userBalance").innerText = balance;
-                alert("✅ Upgrade muvaffaqiyatli! Endi har bosishda " + tapPower + " TAP Coin olasiz.");
-            } else {
-                alert("❌ Yetarli TAP Coin yo‘q!");
-            }
+            sendToBot(`🎯 *TAP COIN yig‘ildi!* Balans: ${balance} TAP`);
         }
 
         function airdrop() {
-            let amount = parseInt(prompt("🎁 Qancha TAP Coin chiqarishni xohlaysiz? (Kamida 1000)"));
+            let amount = parseInt(prompt("🎁 Qancha TAP COIN airdrop qilmoqchisiz? (Kamida 1000)"));
             
             if (isNaN(amount) || amount < 1000) {
-                alert("❌ Kamida 1000 TAP Coin chiqarishingiz kerak!");
+                alert("❌ Kamida 1000 TAP COIN chiqarishingiz kerak!");
                 return;
             }
 
             if (balance >= amount) {
                 balance -= amount;
-                aerBalance += amount;  // AER Coin saqlash
+                aerBalance += amount;
                 saveBalance();
                 document.getElementById("userBalance").innerText = balance;
 
-                let now = new Date().toLocaleString();
-                let record = { date: now, amount: amount };
-                airdropHistory.push(record);
+                sendToBot(`💸 *Airdrop qilindi!* ${amount} TAP → AER COIN ga o‘tkazildi\n🎁 Yangi AER COIN balans: ${aerBalance} TAP`);
+            } else {
+                alert("❌ Yetarli TAP COIN yo‘q!");
+            }
+        }
+
+        function sendCoins() {
+            let receiverId = prompt("📤 Kimga yubormoqchisiz? (Foydalanuvchi ID)");
+            let amount = parseInt(prompt("📤 Nechta TAP Coin yubormoqchisiz?"));
+
+            if (balance >= amount && amount > 0) {
+                balance -= amount;
                 saveBalance();
+                alert(`✅ ${amount} TAP Coin foydalanuvchi ${receiverId} ga yuborildi!`);
 
-                alert(`🎁 Siz ${amount} TAP Coin chiqardingiz!`);
-
-                // 🔥 **Botga foydalanuvchining airdrop qilgan ma'lumotini yuborish**
-                let message = `💸 *Airdrop qilindi!* 💸\n\n👤 Foydalanuvchi: *${userId}*\n🎁 Airdrop miqdori: *${amount} AER COIN*\n📅 Sana: *${now}*`;
-                
-                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: message,
-                        parse_mode: "Markdown"
-                    })
-                });
+                sendToBot(`📤 *TAP Coin jo‘natildi!* ${amount} TAP → ${receiverId}`);
             } else {
                 alert("❌ Yetarli TAP Coin yo‘q!");
             }
         }
 
-        function viewLeaderboard() {
-            let allUsers = Object.keys(localStorage)
-                .filter(key => key.includes("_balance"))
-                .map(key => ({ user: key.replace("_balance", ""), balance: parseInt(localStorage.getItem(key)) }))
-                .sort((a, b) => b.balance - a.balance)
-                .slice(0, 5);
-
-            let leaderboard = allUsers.map((u, i) => `${i + 1}. User ${u.user} - ${u.balance} TAP`).join("\n");
-            alert("🏆 Liderlar:\n" + leaderboard);
-        }
-
-        function sendCoins() {
-            let receiverId = prompt("📤 Foydalanuvchi ID sini kiriting:");
-            let amount = parseInt(prompt("Nechta TAP Coin yubormoqchisiz?"));
-
-            if (balance >= amount && amount > 0) {
-                balance -= amount;
-                let receiverBalance = parseInt(localStorage.getItem(receiverId + "_balance")) || 0;
-                receiverBalance += amount;
-                localStorage.setItem(receiverId + "_balance", receiverBalance);
-                saveBalance();
-                alert(`✅ ${amount} TAP Coin foydalanuvchi ${receiverId} ga yuborildi!`);
-            } else {
-                alert("❌ Yetarli TAP Coin yo‘q yoki noto‘g‘ri miqdor!");
-            }
+        function sendToBot(message) {
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message,
+                    parse_mode: "Markdown"
+                })
+            });
         }
 
         function showCabinet() {
-            let history = JSON.parse(localStorage.getItem(userId + "_airdrops")) || [];
-            let historyText = history.map(h => `📅 ${h.date} - 🎁 ${h.amount} TAP`).join("\n") || "❌ Airdrop tarixi yo‘q!";
-            
-            alert(`👤 Sizning kabinetingiz:\n\n💰 Balans: ${balance} TAP\n🎁 AER COIN: ${aerBalance} TAP\n📜 Airdrop tarixi:\n${historyText}`);
+            alert(`👤 Sizning kabinetingiz:\n\n💰 TAP COIN: ${balance} TAP\n🎁 AER COIN: ${aerBalance} TAP`);
         }
     </script>
 </body>
