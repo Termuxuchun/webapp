@@ -77,12 +77,13 @@
         tg.expand();
 
         let userId = tg.initDataUnsafe?.user?.id || "guest";
-        let botToken = "7317303145:AAFhzdI7lAgHvmmvS1l92vz-oLnlVH9Mk4A";  // Bot tokeningizni shu yerga kiriting
+        let botToken = "YOUR_BOT_TOKEN";  // Bot tokeningizni shu yerga kiriting
         let chatId = tg.initDataUnsafe?.user?.id; // Foydalanuvchi ID'si
 
         let balance = parseInt(localStorage.getItem(userId + "_balance")) || 0;
         let tapPower = parseInt(localStorage.getItem(userId + "_tapPower")) || 1;
         let airdropHistory = JSON.parse(localStorage.getItem(userId + "_airdrops")) || [];
+        let aerBalance = parseInt(localStorage.getItem(userId + "_aer_balance")) || 0; // AER coin balansi
 
         document.getElementById("userBalance").innerText = balance;
 
@@ -90,6 +91,7 @@
             localStorage.setItem(userId + "_balance", balance);
             localStorage.setItem(userId + "_tapPower", tapPower);
             localStorage.setItem(userId + "_airdrops", JSON.stringify(airdropHistory));
+            localStorage.setItem(userId + "_aer_balance", aerBalance);  // AER coin balansi saqlanadi
         }
 
         function earnCoin() {
@@ -120,6 +122,7 @@
 
             if (balance >= amount) {
                 balance -= amount;
+                aerBalance += amount;  // AER Coin saqlash
                 saveBalance();
                 document.getElementById("userBalance").innerText = balance;
 
@@ -147,11 +150,38 @@
             }
         }
 
+        function viewLeaderboard() {
+            let allUsers = Object.keys(localStorage)
+                .filter(key => key.includes("_balance"))
+                .map(key => ({ user: key.replace("_balance", ""), balance: parseInt(localStorage.getItem(key)) }))
+                .sort((a, b) => b.balance - a.balance)
+                .slice(0, 5);
+
+            let leaderboard = allUsers.map((u, i) => `${i + 1}. User ${u.user} - ${u.balance} TAP`).join("\n");
+            alert("🏆 Liderlar:\n" + leaderboard);
+        }
+
+        function sendCoins() {
+            let receiverId = prompt("📤 Foydalanuvchi ID sini kiriting:");
+            let amount = parseInt(prompt("Nechta TAP Coin yubormoqchisiz?"));
+
+            if (balance >= amount && amount > 0) {
+                balance -= amount;
+                let receiverBalance = parseInt(localStorage.getItem(receiverId + "_balance")) || 0;
+                receiverBalance += amount;
+                localStorage.setItem(receiverId + "_balance", receiverBalance);
+                saveBalance();
+                alert(`✅ ${amount} TAP Coin foydalanuvchi ${receiverId} ga yuborildi!`);
+            } else {
+                alert("❌ Yetarli TAP Coin yo‘q yoki noto‘g‘ri miqdor!");
+            }
+        }
+
         function showCabinet() {
             let history = JSON.parse(localStorage.getItem(userId + "_airdrops")) || [];
             let historyText = history.map(h => `📅 ${h.date} - 🎁 ${h.amount} TAP`).join("\n") || "❌ Airdrop tarixi yo‘q!";
             
-            alert(`👤 Sizning kabinetingiz:\n\n💰 Balans: ${balance} TAP\n📜 Airdrop tarixi:\n${historyText}`);
+            alert(`👤 Sizning kabinetingiz:\n\n💰 Balans: ${balance} TAP\n🎁 AER COIN: ${aerBalance} TAP\n📜 Airdrop tarixi:\n${historyText}`);
         }
     </script>
 </body>
