@@ -81,12 +81,15 @@
         let balance = parseInt(localStorage.getItem(userId + "_balance")) || 0;
         let tapPower = parseInt(localStorage.getItem(userId + "_tapPower")) || 1;
         let airdropHistory = JSON.parse(localStorage.getItem(userId + "_airdrops")) || [];
+        let dailyQuest = JSON.parse(localStorage.getItem(userId + "_dailyQuest")) || { completed: false };
 
         document.getElementById("userBalance").innerText = balance;
 
         function saveBalance() {
             localStorage.setItem(userId + "_balance", balance);
             localStorage.setItem(userId + "_tapPower", tapPower);
+            localStorage.setItem(userId + "_airdrops", JSON.stringify(airdropHistory));
+            localStorage.setItem(userId + "_dailyQuest", JSON.stringify(dailyQuest));
         }
 
         function earnCoin() {
@@ -108,19 +111,26 @@
         }
 
         function airdrop() {
-            if (balance >= 1000) {
-                let bonus = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
-                balance += bonus;
+            let amount = parseInt(prompt("🎁 Qancha TAP Coin chiqarishni xohlaysiz? (Kamida 1000)"));
+            
+            if (isNaN(amount) || amount < 1000) {
+                alert("❌ Kamida 1000 TAP Coin chiqarishingiz kerak!");
+                return;
+            }
+
+            if (balance >= amount) {
+                balance -= amount;
                 saveBalance();
                 document.getElementById("userBalance").innerText = balance;
 
                 let now = new Date().toLocaleString();
-                airdropHistory.push({ date: now, amount: bonus });
-                localStorage.setItem(userId + "_airdrops", JSON.stringify(airdropHistory));
+                let record = { date: now, amount: amount };
+                airdropHistory.push(record);
+                saveBalance();
 
-                alert(`🎁 Siz ${bonus} TAP Coin bonus oldingiz!`);
+                alert(`🎁 Siz ${amount} TAP Coin chiqardingiz!`);
             } else {
-                alert("❌ 1000 TAP Coin yig‘ish kerak!");
+                alert("❌ Yetarli TAP Coin yo‘q!");
             }
         }
 
@@ -154,7 +164,10 @@
         function showCabinet() {
             let history = JSON.parse(localStorage.getItem(userId + "_airdrops")) || [];
             let historyText = history.map(h => `📅 ${h.date} - 🎁 ${h.amount} TAP`).join("\n") || "❌ Airdrop tarixi yo‘q!";
-            alert("👤 Sizning kabinetingiz:\n\n💰 Balans: " + balance + " TAP\n\n📜 Airdrop tarixi:\n" + historyText);
+            
+            let questStatus = dailyQuest.completed ? "✅ Bajardi!" : "❌ Bajarmadi!";
+            
+            alert(`👤 Sizning kabinetingiz:\n\n💰 Balans: ${balance} TAP\n📜 Airdrop tarixi:\n${historyText}\n\n🎯 Kunlik missiya: ${questStatus}`);
         }
     </script>
 </body>
