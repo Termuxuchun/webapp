@@ -23,11 +23,6 @@
             backdrop-filter: blur(10px);
             margin: auto;
         }
-        .coin {
-            font-size: 50px;
-            margin: 20px 0;
-            cursor: pointer;
-        }
         .balance {
             font-size: 20px;
             font-weight: bold;
@@ -56,18 +51,12 @@
 <body>
     <div class="container">
         <h1>🎉 Tap Coin!</h1>
-        <div class="coin" onclick="earnCoin()">🪙</div>
         <p class="balance">Balans: <span id="userBalance">0</span> TAP</p>
-
-        <div class="menu">
-            <button onclick="earnCoin()">🎯 Tap</button>
-            <button onclick="upgrade()">⚡ Upgrade</button>
-            <button onclick="airdrop()">🎁 Airdrop</button>
-        </div>
+        <p class="balance">AER COIN: <span id="aerBalance">0</span> TAP</p>
 
         <div class="menu">
             <button onclick="sendCoins()">📤 Coin yuborish</button>
-            <button onclick="showCabinet()">👤 Kabinet</button>
+            <button onclick="airdrop()">🎁 Airdrop</button>
         </div>
     </div>
 
@@ -80,30 +69,35 @@
         let chatId = tg.initDataUnsafe?.user?.id;
 
         let balance = parseInt(localStorage.getItem(userId + "_balance")) || 0;
-        let tapPower = parseInt(localStorage.getItem(userId + "_tapPower")) || 1;
         let aerBalance = parseInt(localStorage.getItem(userId + "_aer_balance")) || 0;
 
         document.getElementById("userBalance").innerText = balance;
+        document.getElementById("aerBalance").innerText = aerBalance;
 
         function saveBalance() {
             localStorage.setItem(userId + "_balance", balance);
-            localStorage.setItem(userId + "_tapPower", tapPower);
             localStorage.setItem(userId + "_aer_balance", aerBalance);
         }
 
-        function earnCoin() {
-            balance += tapPower;
-            saveBalance();
-            document.getElementById("userBalance").innerText = balance;
+        function sendCoins() {
+            let receiverId = prompt("📤 Kimga yubormoqchisiz? (Telegram ID)");
+            let amount = parseInt(prompt("Nechta TAP Coin yubormoqchisiz?"));
 
-            sendToBot(`🎯 *TAP COIN yig‘ildi!* Balans: ${balance} TAP`);
+            if (balance >= amount && amount > 0) {
+                balance -= amount;
+                saveBalance();
+                sendDataToBot({type: "send", amount: amount, to: receiverId});
+                alert(`✅ ${amount} TAP Coin ${receiverId} ga yuborildi!`);
+            } else {
+                alert("❌ Yetarli TAP Coin yo‘q!");
+            }
         }
 
         function airdrop() {
-            let amount = parseInt(prompt("🎁 Qancha TAP COIN airdrop qilmoqchisiz? (Kamida 1000)"));
-            
-            if (isNaN(amount) || amount < 1000) {
-                alert("❌ Kamida 1000 TAP COIN chiqarishingiz kerak!");
+            let amount = parseInt(prompt("🎁 Qancha TAP Coin chiqarishni xohlaysiz? (Kamida 1000)"));
+
+            if (amount < 1000) {
+                alert("❌ Kamida 1000 TAP Coin chiqarishingiz kerak!");
                 return;
             }
 
@@ -111,43 +105,23 @@
                 balance -= amount;
                 aerBalance += amount;
                 saveBalance();
-                document.getElementById("userBalance").innerText = balance;
-
-                sendToBot(`💸 *Airdrop qilindi!* ${amount} TAP → AER COIN ga o‘tkazildi\n🎁 Yangi AER COIN balans: ${aerBalance} TAP`);
-            } else {
-                alert("❌ Yetarli TAP COIN yo‘q!");
-            }
-        }
-
-        function sendCoins() {
-            let receiverId = prompt("📤 Kimga yubormoqchisiz? (Foydalanuvchi ID)");
-            let amount = parseInt(prompt("📤 Nechta TAP Coin yubormoqchisiz?"));
-
-            if (balance >= amount && amount > 0) {
-                balance -= amount;
-                saveBalance();
-                alert(`✅ ${amount} TAP Coin foydalanuvchi ${receiverId} ga yuborildi!`);
-
-                sendToBot(`📤 *TAP Coin jo‘natildi!* ${amount} TAP → ${receiverId}`);
+                sendDataToBot({type: "airdrop", amount: amount});
+                alert(`🎁 Siz ${amount} TAP Coin airdrop qildingiz!`);
             } else {
                 alert("❌ Yetarli TAP Coin yo‘q!");
             }
         }
 
-        function sendToBot(message) {
+        function sendDataToBot(data) {
             fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     chat_id: chatId,
-                    text: message,
+                    text: JSON.stringify({user_id: userId, ...data}),
                     parse_mode: "Markdown"
                 })
             });
-        }
-
-        function showCabinet() {
-            alert(`👤 Sizning kabinetingiz:\n\n💰 TAP COIN: ${balance} TAP\n🎁 AER COIN: ${aerBalance} TAP`);
         }
     </script>
 </body>
