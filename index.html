@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Web App</title>
+    <title>Tap Coin Web App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -47,32 +47,42 @@
 </head>
 <body>
     <div class="container">
-        <h1>👋 Xush kelibsiz!</h1>
-        <p class="info">Telegram Web App orqali foydalanmoqdasiz.</p>
-        <p class="info" id="userInfo">⏳ Ma'lumot yuklanmoqda...</p>
-        <button onclick="sendDataToBot()">📩 Ma’lumotni botga yuborish</button>
+        <h1>🎉 Tap Coin tizimi!</h1>
+        <p class="info">Foydalanuvchi balansini ko‘rish va coin to‘plash.</p>
+        <p class="info" id="userBalance">Balans: <b>0</b> TAP Coin</p>
+        <button onclick="earnCoin()">💰 Tap Coin to‘plash</button>
+        <button onclick="useCoin()">💸 Tap Coin ishlatish</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // To'liq ekran qilish
+        tg.expand(); // Ekranni to'liq ochish
 
-        // Foydalanuvchi ma'lumotlarini olish
-        let userData = tg.initDataUnsafe.user;
-        document.getElementById("userInfo").innerHTML = 
-            `👤 Ism: <b>${userData.first_name || "Noma'lum"}</b><br>🆔 ID: <b>${userData.id}</b>`;
+        // Foydalanuvchi balansini olish (localStorage orqali)
+        let userBalance = localStorage.getItem("coinBalance");
+        if (!userBalance) {
+            userBalance = 0;  // Agar foydalanuvchi hali coin yig‘magan bo‘lsa, balansni 0 qilib o‘rnatamiz.
+        }
+        document.getElementById("userBalance").innerHTML = `Balans: <b>${userBalance}</b> TAP Coin`;
 
-        // Botga ma'lumot yuborish
-        function sendDataToBot() {
-            let data = {
-                user_id: userData.id,
-                first_name: userData.first_name,
-                last_name: userData.last_name || "",
-                language: userData.language_code
-            };
+        // Coin to‘plash funksiyasi
+        function earnCoin() {
+            userBalance = parseInt(userBalance) + 1;  // 1 coin qo‘shish
+            localStorage.setItem("coinBalance", userBalance);
+            document.getElementById("userBalance").innerHTML = `Balans: <b>${userBalance}</b> TAP Coin`;
+            alert("✅ Siz 1 TAP Coin to‘pladingiz!");
+        }
 
-            tg.sendData(JSON.stringify(data)); // Botga JSON formatida ma'lumot yuborish
-            alert("✅ Ma’lumot botga yuborildi!");
+        // Coin ishlatish funksiyasi
+        function useCoin() {
+            if (userBalance > 0) {
+                userBalance = parseInt(userBalance) - 1;  // 1 coin ayirish
+                localStorage.setItem("coinBalance", userBalance);
+                document.getElementById("userBalance").innerHTML = `Balans: <b>${userBalance}</b> TAP Coin`;
+                alert("✅ Siz 1 TAP Coin ishlatdingiz!");
+            } else {
+                alert("❌ Balansda coin mavjud emas!");
+            }
         }
     </script>
 </body>
