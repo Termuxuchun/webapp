@@ -76,107 +76,85 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        let userId = tg.initDataUnsafe.user.id;
+        let userId = tg.initDataUnsafe?.user?.id || "guest";
 
-        // Coinlarni saqlash
-        async function loadBalance() {
-            let response = await fetch("coinbase.json");
-            let data = await response.json();
-            return data[userId] ? data[userId].balance : 0;
+        // Balans va upgrade kuchi saqlanadi
+        let balance = parseInt(localStorage.getItem(userId + "_balance")) || 0;
+        let tapPower = parseInt(localStorage.getItem(userId + "_tapPower")) || 1;
+
+        document.getElementById("userBalance").innerText = balance;
+
+        function saveBalance() {
+            localStorage.setItem(userId + "_balance", balance);
+            localStorage.setItem(userId + "_tapPower", tapPower);
         }
 
-        async function saveBalance(newBalance) {
-            let response = await fetch("coinbase.json");
-            let data = await response.json();
-            data[userId] = { balance: newBalance };
-            await fetch("coinbase.json", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-        }
-
-        async function init() {
-            let balance = await loadBalance();
+        function earnCoin() {
+            balance += tapPower;
+            saveBalance();
             document.getElementById("userBalance").innerText = balance;
         }
 
-        async function earnCoin() {
-            let balance = await loadBalance();
-            balance += 1;
-            await saveBalance(balance);
-            document.getElementById("userBalance").innerText = balance;
-        }
-
-        async function upgrade() {
-            let balance = await loadBalance();
+        function upgrade() {
             if (balance >= 100) {
                 balance -= 100;
-                await saveBalance(balance);
+                tapPower += 1;
+                saveBalance();
                 document.getElementById("userBalance").innerText = balance;
-                alert("✅ Upgrade qildingiz!");
-            } else {
-                alert("❌ Yetarli TAP yo‘q!");
-            }
-        }
-
-        async function airdrop() {
-            let balance = await loadBalance();
-            if (balance >= 1000) {
-                balance -= 1000;
-                await saveBalance(balance);
-                document.getElementById("userBalance").innerText = balance;
-                alert("✅ 1000 TAP Coin yechildi!");
+                alert("✅ Upgrade muvaffaqiyatli! Endi har bosishda " + tapPower + " TAP Coin olasiz.");
             } else {
                 alert("❌ Yetarli TAP Coin yo‘q!");
             }
         }
 
-        async function viewLeaderboard() {
-            let response = await fetch("coinbase.json");
-            let data = await response.json();
-            let leaderboard = Object.entries(data)
-                .sort((a, b) => b[1].balance - a[1].balance)
-                .slice(0, 5)
-                .map((item, index) => `${index + 1}. User ${item[0]} - ${item[1].balance} TAP`)
-                .join("\n");
+        function airdrop() {
+            if (balance >= 1000) {
+                balance -= 1000;
+                saveBalance();
+                document.getElementById("userBalance").innerText = balance;
+                alert("✅ Siz 1000 TAP Coin yechib oldingiz!");
+            } else {
+                alert("❌ 1000 TAP Coin yig‘ish kerak!");
+            }
+        }
+
+        function viewLeaderboard() {
+            let allUsers = Object.keys(localStorage)
+                .filter(key => key.includes("_balance"))
+                .map(key => ({ user: key.replace("_balance", ""), balance: parseInt(localStorage.getItem(key)) }))
+                .sort((a, b) => b.balance - a.balance)
+                .slice(0, 5);
+
+            let leaderboard = allUsers.map((u, i) => `${i + 1}. User ${u.user} - ${u.balance} TAP`).join("\n");
             alert("🏆 Liderlar:\n" + leaderboard);
         }
 
-        async function sendCoins() {
-            let userId = prompt("📤 Qaysi foydalanuvchiga coin yubormoqchisiz? (User ID)");
+        function sendCoins() {
+            let receiverId = prompt("📤 Foydalanuvchi ID sini kiriting:");
             let amount = parseInt(prompt("Nechta TAP Coin yubormoqchisiz?"));
-            let balance = await loadBalance();
-            if (balance >= amount) {
-                let response = await fetch("coinbase.json");
-                let data = await response.json();
-                data[userId] = data[userId] || { balance: 0 };
-                data[userId].balance += amount;
-                data[userId].balance -= amount;
-                await fetch("coinbase.json", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
-                alert(`✅ ${amount} TAP Coin yuborildi!`);
+
+            if (balance >= amount && amount > 0) {
+                balance -= amount;
+                let receiverBalance = parseInt(localStorage.getItem(receiverId + "_balance")) || 0;
+                receiverBalance += amount;
+                localStorage.setItem(receiverId + "_balance", receiverBalance);
+                saveBalance();
+                alert(`✅ ${amount} TAP Coin foydalanuvchi ${receiverId} ga yuborildi!`);
             } else {
-                alert("❌ Yetarli TAP Coin yo‘q!");
+                alert("❌ Yetarli TAP Coin yo‘q yoki noto‘g‘ri miqdor!");
             }
         }
 
-        async function exchangeCoins() {
-            let balance = await loadBalance();
+        function exchangeCoins() {
             if (balance >= 10000) {
                 balance -= 10000;
-                await saveBalance(balance);
+                saveBalance();
                 document.getElementById("userBalance").innerText = balance;
                 alert("✅ 10,000 TAP Coin real pulga almashtirildi!");
             } else {
                 alert("❌ Yetarli TAP Coin yo‘q!");
             }
         }
-
-        init();
     </script>
 </body>
 </html>
