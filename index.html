@@ -68,7 +68,7 @@
         <div class="menu">
             <button onclick="viewLeaderboard()">🏆 Liderlar</button>
             <button onclick="sendCoins()">📤 Coin yuborish</button>
-            <button onclick="exchangeCoins()">💰 Pulga almashtirish</button>
+            <button onclick="showCabinet()">👤 Kabinet</button>
         </div>
     </div>
 
@@ -78,9 +78,9 @@
 
         let userId = tg.initDataUnsafe?.user?.id || "guest";
 
-        // Balans va upgrade kuchi saqlanadi
         let balance = parseInt(localStorage.getItem(userId + "_balance")) || 0;
         let tapPower = parseInt(localStorage.getItem(userId + "_tapPower")) || 1;
+        let airdropHistory = JSON.parse(localStorage.getItem(userId + "_airdrops")) || [];
 
         document.getElementById("userBalance").innerText = balance;
 
@@ -109,10 +109,16 @@
 
         function airdrop() {
             if (balance >= 1000) {
-                balance -= 1000;
+                let bonus = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
+                balance += bonus;
                 saveBalance();
                 document.getElementById("userBalance").innerText = balance;
-                alert("✅ Siz 1000 TAP Coin yechib oldingiz!");
+
+                let now = new Date().toLocaleString();
+                airdropHistory.push({ date: now, amount: bonus });
+                localStorage.setItem(userId + "_airdrops", JSON.stringify(airdropHistory));
+
+                alert(`🎁 Siz ${bonus} TAP Coin bonus oldingiz!`);
             } else {
                 alert("❌ 1000 TAP Coin yig‘ish kerak!");
             }
@@ -145,15 +151,10 @@
             }
         }
 
-        function exchangeCoins() {
-            if (balance >= 10000) {
-                balance -= 10000;
-                saveBalance();
-                document.getElementById("userBalance").innerText = balance;
-                alert("✅ 10,000 TAP Coin real pulga almashtirildi!");
-            } else {
-                alert("❌ Yetarli TAP Coin yo‘q!");
-            }
+        function showCabinet() {
+            let history = JSON.parse(localStorage.getItem(userId + "_airdrops")) || [];
+            let historyText = history.map(h => `📅 ${h.date} - 🎁 ${h.amount} TAP`).join("\n") || "❌ Airdrop tarixi yo‘q!";
+            alert("👤 Sizning kabinetingiz:\n\n💰 Balans: " + balance + " TAP\n\n📜 Airdrop tarixi:\n" + historyText);
         }
     </script>
 </body>
