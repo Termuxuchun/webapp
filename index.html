@@ -64,51 +64,119 @@
             <button onclick="upgrade()">⚡ Upgrade</button>
             <button onclick="airdrop()">🎁 Airdrop</button>
         </div>
+
+        <div class="menu">
+            <button onclick="viewLeaderboard()">🏆 Liderlar</button>
+            <button onclick="sendCoins()">📤 Coin yuborish</button>
+            <button onclick="exchangeCoins()">💰 Pulga almashtirish</button>
+        </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Coin balansini localStorage'da saqlash
-        let balance = localStorage.getItem("tapCoinBalance") ? parseInt(localStorage.getItem("tapCoinBalance")) : 0;
-        let tapPower = localStorage.getItem("tapPower") ? parseInt(localStorage.getItem("tapPower")) : 1;
+        let userId = tg.initDataUnsafe.user.id;
 
-        // Balansni ekranga chiqarish
-        document.getElementById("userBalance").innerText = balance;
+        // Coinlarni saqlash
+        async function loadBalance() {
+            let response = await fetch("coinbase.json");
+            let data = await response.json();
+            return data[userId] ? data[userId].balance : 0;
+        }
 
-        // TAP - Coin bosish
-        function earnCoin() {
-            balance += tapPower;
-            localStorage.setItem("tapCoinBalance", balance);
+        async function saveBalance(newBalance) {
+            let response = await fetch("coinbase.json");
+            let data = await response.json();
+            data[userId] = { balance: newBalance };
+            await fetch("coinbase.json", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+        }
+
+        async function init() {
+            let balance = await loadBalance();
             document.getElementById("userBalance").innerText = balance;
         }
 
-        // UPGRADE - Tezlashtirish
-        function upgrade() {
-            if (balance >= 100) { // Upgrade 100 coin turadi
+        async function earnCoin() {
+            let balance = await loadBalance();
+            balance += 1;
+            await saveBalance(balance);
+            document.getElementById("userBalance").innerText = balance;
+        }
+
+        async function upgrade() {
+            let balance = await loadBalance();
+            if (balance >= 100) {
                 balance -= 100;
-                tapPower += 1; // Har bir upgrade'da tap kuchayadi
-                localStorage.setItem("tapCoinBalance", balance);
-                localStorage.setItem("tapPower", tapPower);
+                await saveBalance(balance);
                 document.getElementById("userBalance").innerText = balance;
-                alert("✅ Upgrade qildingiz! Endi har bosishda " + tapPower + " TAP Coin yig‘asiz!");
+                alert("✅ Upgrade qildingiz!");
             } else {
-                alert("❌ Upgrade uchun yetarli TAP Coin yo‘q!");
+                alert("❌ Yetarli TAP yo‘q!");
             }
         }
 
-        // AIRDROP - 1000 TAP yechish
-        function airdrop() {
+        async function airdrop() {
+            let balance = await loadBalance();
             if (balance >= 1000) {
                 balance -= 1000;
-                localStorage.setItem("tapCoinBalance", balance);
+                await saveBalance(balance);
                 document.getElementById("userBalance").innerText = balance;
-                alert("✅ Siz 1000 TAP Coin yig‘ib oldingiz!");
+                alert("✅ 1000 TAP Coin yechildi!");
             } else {
-                alert("❌ Airdrop olish uchun kamida 1000 TAP Coin yig‘ing!");
+                alert("❌ Yetarli TAP Coin yo‘q!");
             }
         }
+
+        async function viewLeaderboard() {
+            let response = await fetch("coinbase.json");
+            let data = await response.json();
+            let leaderboard = Object.entries(data)
+                .sort((a, b) => b[1].balance - a[1].balance)
+                .slice(0, 5)
+                .map((item, index) => `${index + 1}. User ${item[0]} - ${item[1].balance} TAP`)
+                .join("\n");
+            alert("🏆 Liderlar:\n" + leaderboard);
+        }
+
+        async function sendCoins() {
+            let userId = prompt("📤 Qaysi foydalanuvchiga coin yubormoqchisiz? (User ID)");
+            let amount = parseInt(prompt("Nechta TAP Coin yubormoqchisiz?"));
+            let balance = await loadBalance();
+            if (balance >= amount) {
+                let response = await fetch("coinbase.json");
+                let data = await response.json();
+                data[userId] = data[userId] || { balance: 0 };
+                data[userId].balance += amount;
+                data[userId].balance -= amount;
+                await fetch("coinbase.json", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                alert(`✅ ${amount} TAP Coin yuborildi!`);
+            } else {
+                alert("❌ Yetarli TAP Coin yo‘q!");
+            }
+        }
+
+        async function exchangeCoins() {
+            let balance = await loadBalance();
+            if (balance >= 10000) {
+                balance -= 10000;
+                await saveBalance(balance);
+                document.getElementById("userBalance").innerText = balance;
+                alert("✅ 10,000 TAP Coin real pulga almashtirildi!");
+            } else {
+                alert("❌ Yetarli TAP Coin yo‘q!");
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>
