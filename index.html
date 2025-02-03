@@ -1,47 +1,219 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web App Tamirlanmoqda</title>
+    <title>Mines Game</title>
     <style>
-        /* Ekranda markazga joylashtirish */
-        body, html {
-            height: 100%;
-            margin: 0;
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
         }
+
         h1 {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
+            margin: 20px 0;
+            font-size: 2rem;
             color: #333;
         }
-        
-        /* Yozuvni pastga joylashtirish */
-        #bottom-text {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            font-size: 16px;
-            color: #555;
-            
+
+        .game-container {
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
         }
-       
+
+        #gameBoard {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-template-rows: repeat(5, 50px);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .cell.clicked {
+            background-color: #dcdcdc;
+            pointer-events: none;
+        }
+
+        .cell.mine {
+            background-color: red;
+        }
+
+        .cell.safe {
+            background-color: #8bc34a;
+        }
+
+        .status {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .level-selector select {
+            font-size: 1rem;
+            padding: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1>🚧 Xozircha tamirda 🚧<br> 404 </h1>
-    
+    <h1>Mines Game</h1>
+    <div class="game-container">
+        <div class="status" id="status">Maydonni tanlang!</div>
+        <div id="gameBoard"></div>
+        <div class="controls">
+            <div class="level-selector">
+                <label for="level">Daraja:</label>
+                <select id="level">
+                    <option value="5">Boshlang'ich (5x5)</option>
+                    <option value="7">O'rta (7x7)</option>
+                    <option value="10">Murakkab (10x10)</option>
+                </select>
+            </div>
+            <button onclick="initializeGame()">Qayta Boshlash</button>
+        </div>
+    </div>
 
-     <div id="bottom-text">funksiyaning tuliq ishlab chiqish sanasi:07.02.2025</div>
-    
-   
+    <script>
+        let gridSize = 5;
+        let mineCount = 5;
+        let gameBoard = [];
+        let gameOver = false;
+
+        const gameBoardElement = document.getElementById("gameBoard");
+        const statusElement = document.getElementById("status");
+
+        function initializeGame() {
+            gridSize = parseInt(document.getElementById("level").value);
+            mineCount = Math.floor((gridSize * gridSize) / 5);
+            gameOver = false;
+            gameBoard = [];
+            gameBoardElement.innerHTML = '';
+            statusElement.innerText = 'Maydonni tanlang!';
+
+            // Create grid
+            for (let i = 0; i < gridSize; i++) {
+                const row = [];
+                for (let j = 0; j < gridSize; j++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.dataset.x = i;
+                    cell.dataset.y = j;
+                    cell.addEventListener("click", handleCellClick);
+                    gameBoard.push({ x: i, y: j, isMine: false, isClicked: false });
+                    gameBoardElement.appendChild(cell);
+                    row.push(cell);
+                }
+            }
+
+            // Randomly place mines
+            let minesPlaced = 0;
+            while (minesPlaced < mineCount) {
+                const x = Math.floor(Math.random() * gridSize);
+                const y = Math.floor(Math.random() * gridSize);
+                const cellIndex = x * gridSize + y;
+                if (!gameBoard[cellIndex].isMine) {
+                    gameBoard[cellIndex].isMine = true;
+                    minesPlaced++;
+                }
+            }
+        }
+
+        function handleCellClick(event) {
+            if (gameOver) return;
+
+            const cell = event.target;
+            const x = parseInt(cell.dataset.x);
+            const y = parseInt(cell.dataset.y);
+            const cellIndex = x * gridSize + y;
+
+            if (gameBoard[cellIndex].isClicked) return;
+
+            gameBoard[cellIndex].isClicked = true;
+
+            if (gameBoard[cellIndex].isMine) {
+                cell.classList.add("mine");
+                statusElement.innerText = "O'yin tugadi! Siz minalarni topdingiz.";
+                gameOver = true;
+            } else {
+                cell.classList.add("safe");
+                const nearbyMines = countNearbyMines(x, y);
+                cell.innerText = nearbyMines > 0 ? nearbyMines : '';
+                if (isGameWon()) {
+                    statusElement.innerText = "Tabriklaymiz! O'yinni yutdingiz!";
+                    gameOver = true;
+                }
+            }
+        }
+
+        function countNearbyMines(x, y) {
+            let mineCount = 0;
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    const newX = x + i;
+                    const newY = y + j;
+                    if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize) {
+                        const index = newX * gridSize + newY;
+                        if (gameBoard[index].isMine) {
+                            mineCount++;
+                        }
+                    }
+                }
+            }
+            return mineCount;
+        }
+
+        function isGameWon() {
+            return gameBoard.every(cell => {
+                return cell.isMine || (cell.isClicked && !cell.isMine);
+            });
+        }
+
+        // Start the game on initial load
+        initializeGame();
+    </script>
 </body>
 </html>
