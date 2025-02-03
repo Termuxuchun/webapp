@@ -40,71 +40,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎮 Fun Games</h1>
-        <p>O‘yin o‘ynab TAP Coin yutib oling!</p>
-        <button class="game-button" onclick="startClickerGame()">Clicker Game</button>
-        <button class="game-button" onclick="startQuizGame()">Quiz Game</button>
-        <button class="game-button" onclick="startTicTacToe()">Tic-Tac-Toe</button>
+        <h1>NOT FOUND 404</h1>
+        <p>Botimiz hozirda tamirda</p>
     </div>
-
-    <script>
-        function startClickerGame() {
-            let score = 0;
-            let gameWindow = window.open('', '', 'width=400,height=400');
-            gameWindow.document.write('<h2>Clicker Game</h2><p>Score: <span id="score">0</span></p><button onclick="updateScore()">Click Me!</button>');
-            gameWindow.updateScore = function() {
-                score++;
-                gameWindow.document.getElementById("score").innerText = score;
-            }
-        }
-        
-        function startQuizGame() {
-            let questions = [
-                { question: "What is 2+2?", answer: "4" },
-                { question: "Capital of France?", answer: "Paris" }
-            ];
-            let index = 0;
-            let gameWindow = window.open('', '', 'width=400,height=400');
-            gameWindow.document.write('<h2>Quiz Game</h2><p id="question"></p><input id="answer" type="text"><button onclick="checkAnswer()">Next</button>');
-            function showQuestion() {
-                gameWindow.document.getElementById("question").innerText = questions[index].question;
-            }
-            showQuestion();
-            gameWindow.checkAnswer = function() {
-                let userAnswer = gameWindow.document.getElementById("answer").value;
-                if (userAnswer.toLowerCase() === questions[index].answer.toLowerCase()) {
-                    alert("Correct!");
-                } else {
-                    alert("Wrong!");
-                }
-                index = (index + 1) % questions.length;
-                showQuestion();
-            }
-        }
-        
-        function startTicTacToe() {
-            let board = Array(9).fill(null);
-            let isXNext = true;
-            let gameWindow = window.open('', '', 'width=400,height=400');
-            gameWindow.document.write('<h2>Tic-Tac-Toe</h2><div id="board"></div>');
-            let boardDiv = gameWindow.document.getElementById("board");
-            boardDiv.style.display = "grid";
-            boardDiv.style.gridTemplateColumns = "repeat(3, 1fr)";
-            for (let i = 0; i < 9; i++) {
-                let button = gameWindow.document.createElement("button");
-                button.innerText = "";
-                button.style.width = "50px";
-                button.style.height = "50px";
-                button.onclick = function() {
-                    if (!board[i]) {
-                        board[i] = isXNext ? "X" : "O";
-                        button.innerText = board[i];
-                        isXNext = !isXNext;
-                    }
-                };
-                boardDiv.appendChild(button);
-            }
-        }
-    </script>
 </body>
 </html>
