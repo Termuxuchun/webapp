@@ -3,217 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mines Game</title>
+    <title>Car Racing Simulator</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
             margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #282828;
         }
 
-        h1 {
-            margin: 20px 0;
-            font-size: 2rem;
-            color: #333;
-        }
-
-        .game-container {
-            background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        #gameBoard {
-            display: grid;
-            grid-template-columns: repeat(5, 50px);
-            grid-template-rows: repeat(5, 50px);
-            gap: 5px;
-            margin-bottom: 20px;
-        }
-
-        .cell {
-            width: 50px;
-            height: 50px;
-            background-color: #f1f1f1;
-            border: 1px solid #ccc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        .cell.clicked {
-            background-color: #dcdcdc;
-            pointer-events: none;
-        }
-
-        .cell.mine {
-            background-color: red;
-        }
-
-        .cell.safe {
-            background-color: #8bc34a;
-        }
-
-        .status {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: #333;
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #111;
+            border: 1px solid #fff;
         }
 
         .controls {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        button {
-            background-color: #4caf50;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            font-size: 18px;
         }
 
-        button:hover {
+        .controls button {
+            padding: 10px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .controls button:hover {
             background-color: #45a049;
         }
 
-        .level-selector select {
-            font-size: 1rem;
-            padding: 5px;
-            cursor: pointer;
+        #status {
+            font-size: 20px;
+        }
+
+        #start-button {
+            background-color: #f44336;
+        }
+
+        #start-button:hover {
+            background-color: #e53935;
         }
     </style>
 </head>
 <body>
-    <h1>Mines Game</h1>
-    <div class="game-container">
-        <div class="status" id="status">Maydonni tanlang!</div>
-        <div id="gameBoard"></div>
-        <div class="controls">
-            <div class="level-selector">
-                <label for="level">Daraja:</label>
-                <select id="level">
-                    <option value="5">Boshlang'ich (5x5)</option>
-                    <option value="7">O'rta (7x7)</option>
-                    <option value="10">Murakkab (10x10)</option>
-                </select>
-            </div>
-            <button onclick="initializeGame()">Qayta Boshlash</button>
-        </div>
+    <div class="controls">
+        <button id="start-button">Start Race</button>
+        <div id="status">Press Start to Begin</div>
     </div>
+    <canvas id="gameCanvas"></canvas>
 
     <script>
-        let gridSize = 5;
-        let mineCount = 5;
-        let gameBoard = [];
-        let gameOver = false;
-
-        const gameBoardElement = document.getElementById("gameBoard");
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
         const statusElement = document.getElementById("status");
 
-        function initializeGame() {
-            gridSize = parseInt(document.getElementById("level").value);
-            mineCount = Math.floor((gridSize * gridSize) / 5);
-            gameOver = false;
-            gameBoard = [];
-            gameBoardElement.innerHTML = '';
-            statusElement.innerText = 'Maydonni tanlang!';
+        // Canvas size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-            // Create grid
-            for (let i = 0; i < gridSize; i++) {
-                const row = [];
-                for (let j = 0; j < gridSize; j++) {
-                    const cell = document.createElement("div");
-                    cell.classList.add("cell");
-                    cell.dataset.x = i;
-                    cell.dataset.y = j;
-                    cell.addEventListener("click", handleCellClick);
-                    gameBoard.push({ x: i, y: j, isMine: false, isClicked: false });
-                    gameBoardElement.appendChild(cell);
-                    row.push(cell);
+        // Game variables
+        let car = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 100,
+            width: 50,
+            height: 100,
+            speed: 5,
+            movingLeft: false,
+            movingRight: false,
+            movingUp: false,
+            movingDown: false
+        };
+
+        let obstacles = [];
+        let gameInterval;
+        let raceStarted = false;
+
+        function startRace() {
+            raceStarted = true;
+            obstacles = [];
+            car.x = canvas.width / 2 - 25;
+            car.y = canvas.height - 100;
+            statusElement.innerText = "Race in Progress!";
+            generateObstacles();
+            gameLoop();
+        }
+
+        function stopRace() {
+            clearInterval(gameInterval);
+            statusElement.innerText = "Game Over! Press Start to Restart";
+            raceStarted = false;
+        }
+
+        function generateObstacles() {
+            setInterval(() => {
+                if (raceStarted) {
+                    const obstacleX = Math.random() * canvas.width;
+                    const obstacleWidth = Math.random() * 100 + 50;
+                    obstacles.push({ x: obstacleX, y: -100, width: obstacleWidth, height: 20, speed: 3 });
                 }
-            }
+            }, 1000);
+        }
 
-            // Randomly place mines
-            let minesPlaced = 0;
-            while (minesPlaced < mineCount) {
-                const x = Math.floor(Math.random() * gridSize);
-                const y = Math.floor(Math.random() * gridSize);
-                const cellIndex = x * gridSize + y;
-                if (!gameBoard[cellIndex].isMine) {
-                    gameBoard[cellIndex].isMine = true;
-                    minesPlaced++;
+        function updateCarMovement() {
+            if (car.movingLeft && car.x > 0) car.x -= car.speed;
+            if (car.movingRight && car.x + car.width < canvas.width) car.x += car.speed;
+            if (car.movingUp && car.y > 0) car.y -= car.speed;
+            if (car.movingDown && car.y + car.height < canvas.height) car.y += car.speed;
+        }
+
+        function updateObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += obstacles[i].speed;
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    i--;
                 }
             }
         }
 
-        function handleCellClick(event) {
-            if (gameOver) return;
-
-            const cell = event.target;
-            const x = parseInt(cell.dataset.x);
-            const y = parseInt(cell.dataset.y);
-            const cellIndex = x * gridSize + y;
-
-            if (gameBoard[cellIndex].isClicked) return;
-
-            gameBoard[cellIndex].isClicked = true;
-
-            if (gameBoard[cellIndex].isMine) {
-                cell.classList.add("mine");
-                statusElement.innerText = "O'yin tugadi! Siz minalarni topdingiz.";
-                gameOver = true;
-            } else {
-                cell.classList.add("safe");
-                const nearbyMines = countNearbyMines(x, y);
-                cell.innerText = nearbyMines > 0 ? nearbyMines : '';
-                if (isGameWon()) {
-                    statusElement.innerText = "Tabriklaymiz! O'yinni yutdingiz!";
-                    gameOver = true;
+        function detectCollision() {
+            for (let i = 0; i < obstacles.length; i++) {
+                if (
+                    car.x < obstacles[i].x + obstacles[i].width &&
+                    car.x + car.width > obstacles[i].x &&
+                    car.y < obstacles[i].y + obstacles[i].height &&
+                    car.y + car.height > obstacles[i].y
+                ) {
+                    stopRace();
+                    break;
                 }
             }
         }
 
-        function countNearbyMines(x, y) {
-            let mineCount = 0;
-            for (let i = -1; i <= 1; i++) {
-                for (let j = -1; j <= 1; j++) {
-                    const newX = x + i;
-                    const newY = y + j;
-                    if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize) {
-                        const index = newX * gridSize + newY;
-                        if (gameBoard[index].isMine) {
-                            mineCount++;
-                        }
-                    }
-                }
+        function drawCar() {
+            ctx.fillStyle = "red";
+            ctx.fillRect(car.x, car.y, car.width, car.height);
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = "green";
+            for (let i = 0; i < obstacles.length; i++) {
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
             }
-            return mineCount;
         }
 
-        function isGameWon() {
-            return gameBoard.every(cell => {
-                return cell.isMine || (cell.isClicked && !cell.isMine);
-            });
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            updateCarMovement();
+            updateObstacles();
+            detectCollision();
+            drawCar();
+            drawObstacles();
         }
 
-        // Start the game on initial load
-        initializeGame();
+        document.getElementById("start-button").addEventListener("click", () => {
+            if (!raceStarted) {
+                startRace();
+            }
+        });
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft") car.movingLeft = true;
+            if (e.key === "ArrowRight") car.movingRight = true;
+            if (e.key === "ArrowUp") car.movingUp = true;
+            if (e.key === "ArrowDown") car.movingDown = true;
+        });
+
+        window.addEventListener("keyup", (e) => {
+            if (e.key === "ArrowLeft") car.movingLeft = false;
+            if (e.key === "ArrowRight") car.movingRight = false;
+            if (e.key === "ArrowUp") car.movingUp = false;
+            if (e.key === "ArrowDown") car.movingDown = false;
+        });
     </script>
 </body>
 </html>
+
