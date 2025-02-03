@@ -20,11 +20,33 @@
             text-align: center;
             font-size: 24px;
             font-weight: bold;
-            color: #00;
+            color: #333;
+        }
+        #timer {
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #e74c3c;
         }
     </style>
 </head>
 <body>
     <h1>🚧 Xozircha tamirda 🚧<br>404</h1>
+    <div id="timer">Vaqt: 10:00</div>
+
+    <script>
+        let timerElement = document.getElementById('timer');
+        let seconds = 0;
+
+        function updateTimer() {
+            seconds++;
+            let minutes = Math.floor(seconds / 60);
+            let remainingSeconds = seconds % 60;
+            if (remainingSeconds < 10) remainingSeconds = '0' + remainingSeconds;
+            timerElement.innerText = 'Vaqt: ' + minutes + ':' + remainingSeconds;
+        }
+
+        setInterval(updateTimer, 1000);
+    </script>
 </body>
 </html>
