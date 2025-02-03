@@ -1,128 +1,121 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tap Coin</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 400px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            margin: auto;
-        }
-        .balance {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .menu {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-        }
-        .menu button {
-            background: #ffcc00;
-            color: black;
-            border: none;
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 8px;
-            width: 30%;
-        }
-        .menu button:hover {
-            background: #ffdd33;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🎉 Tap Coin!</h1>
-        <p class="balance">Balans: <span id="userBalance">0</span> TAP</p>
-        <p class="balance">AER COIN: <span id="aerBalance">0</span> TAP</p>
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
 
-        <div class="menu">
-            <button onclick="sendCoins()">📤 Coin yuborish</button>
-            <button onclick="airdrop()">🎁 Airdrop</button>
-        </div>
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+export default function GamesApp() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-500 to-blue-600 text-white p-4">
+      <h1 className="text-4xl font-bold mb-6">🎮 Fun Games</h1>
+      <p className="text-lg">TAP Coin balansingizni oshirish uchun o‘yinlar o‘ynang!</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mt-4">
+        <GameCard title="Clicker Game" description="Click to earn TAP Coins!" Component={ClickerGame} />
+        <GameCard title="Quiz Game" description="Answer trivia questions!" Component={QuizGame} />
+        <GameCard title="Sudoku" description="Solve the number puzzle!" Component={SudokuGame} />
+        <GameCard title="Tic-Tac-Toe" description="Classic X-O game!" Component={TicTacToe} />
+      </div>
     </div>
+  );
+}
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+function GameCard({ title, description, Component }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+      <Card className="w-64 bg-white text-black shadow-xl" onClick={() => setOpen(true)}>
+        <CardContent className="p-4 text-center">
+          <h2 className="text-xl font-semibold mb-2">{title}</h2>
+          <p className="text-gray-600 mb-4">{description}</p>
+          <Button className="bg-blue-500 text-white">Play Now</Button>
+        </CardContent>
+      </Card>
+      {open && <Component onClose={() => setOpen(false)} />}
+    </motion.div>
+  );
+}
 
-        let userId = tg.initDataUnsafe?.user?.id || "guest";
-        let botToken = "7317303145:AAFhzdI7lAgHvmmvS1l92vz-oLnlVH9Mk4A";
-        let chatId = tg.initDataUnsafe?.user?.id;
+function ClickerGame({ onClose }) {
+  const [score, setScore] = useState(0);
+  const [balance, setBalance] = useState(parseInt(localStorage.getItem("tap_balance")) || 0);
 
-        let balance = parseInt(localStorage.getItem(userId + "_balance")) || 0;
-        let aerBalance = parseInt(localStorage.getItem(userId + "_aer_balance")) || 0;
+  useEffect(() => {
+    localStorage.setItem("tap_balance", balance);
+  }, [balance]);
 
-        document.getElementById("userBalance").innerText = balance;
-        document.getElementById("aerBalance").innerText = aerBalance;
+  return (
+    <div className="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center p-4 text-white">
+      <h2 className="text-2xl font-bold">Clicker Game</h2>
+      <p className="text-lg">Score: {score}</p>
+      <p className="text-lg">TAP Coin: {balance}</p>
+      <Button onClick={() => { setScore(score + 1); setBalance(balance + 1); }}>Click Me!</Button>
+      <Button onClick={onClose}>Close</Button>
+    </div>
+  );
+}
 
-        function saveBalance() {
-            localStorage.setItem(userId + "_balance", balance);
-            localStorage.setItem(userId + "_aer_balance", aerBalance);
+function QuizGame({ onClose }) {
+  const questions = [
+    { question: "What is 2+2?", answer: "4" },
+    { question: "Capital of France?", answer: "Paris" }
+  ];
+  const [index, setIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [balance, setBalance] = useState(parseInt(localStorage.getItem("tap_balance")) || 0);
+
+  return (
+    <div className="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center p-4 text-white">
+      <h2 className="text-2xl font-bold">Quiz Game</h2>
+      <p>{questions[index].question}</p>
+      <input className="text-black" value={answer} onChange={(e) => setAnswer(e.target.value)} />
+      <Button onClick={() => {
+        if (answer.toLowerCase() === questions[index].answer.toLowerCase()) {
+          setBalance(balance + 5);
+          localStorage.setItem("tap_balance", balance + 5);
         }
+        setIndex((index + 1) % questions.length);
+      }}>Next</Button>
+      <Button onClick={onClose}>Close</Button>
+    </div>
+  );
+}
 
-        function sendCoins() {
-            let receiverId = prompt("📤 Kimga yubormoqchisiz? (Telegram ID)");
-            let amount = parseInt(prompt("Nechta TAP Coin yubormoqchisiz?"));
+function SudokuGame({ onClose }) {
+  return (
+    <div className="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center p-4 text-white">
+      <h2 className="text-2xl font-bold">Sudoku (Coming Soon)</h2>
+      <Button onClick={onClose}>Close</Button>
+    </div>
+  );
+}
 
-            if (balance >= amount && amount > 0) {
-                balance -= amount;
-                saveBalance();
-                sendDataToBot({type: "send", amount: amount, to: receiverId});
-                alert(`✅ ${amount} TAP Coin ${receiverId} ga yuborildi!`);
-            } else {
-                alert("❌ Yetarli TAP Coin yo‘q!");
-            }
-        }
-
-        function airdrop() {
-            let amount = parseInt(prompt("🎁 Qancha TAP Coin chiqarishni xohlaysiz? (Kamida 1000)"));
-
-            if (amount < 1000) {
-                alert("❌ Kamida 1000 TAP Coin chiqarishingiz kerak!");
-                return;
-            }
-
-            if (balance >= amount) {
-                balance -= amount;
-                aerBalance += amount;
-                saveBalance();
-                sendDataToBot({type: "airdrop", amount: amount});
-                alert(`🎁 Siz ${amount} TAP Coin airdrop qildingiz!`);
-            } else {
-                alert("❌ Yetarli TAP Coin yo‘q!");
-            }
-        }
-
-        function sendDataToBot(data) {
-            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: JSON.stringify({user_id: userId, ...data}),
-                    parse_mode: "Markdown"
-                })
-            });
-        }
-    </script>
-</body>
-</html>
+function TicTacToe({ onClose }) {
+  const [board, setBoard] = useState(Array(9).fill(null));
+  const [isXNext, setIsXNext] = useState(true);
+  const handleClick = (index) => {
+    if (board[index]) return;
+    const newBoard = [...board];
+    newBoard[index] = isXNext ? "X" : "O";
+    setBoard(newBoard);
+    setIsXNext(!isXNext);
+  };
+  return (
+    <div className="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center p-4 text-white">
+      <h2 className="text-2xl font-bold">Tic-Tac-Toe</h2>
+      <div className="grid grid-cols-3 gap-2">
+        {board.map((cell, index) => (
+          <button
+            key={index}
+            className="w-12 h-12 text-2xl bg-gray-700 text-white"
+            onClick={() => handleClick(index)}
+          >
+            {cell}
+          </button>
+        ))}
+      </div>
+      <Button onClick={onClose}>Close</Button>
+    </div>
+  );
+}
