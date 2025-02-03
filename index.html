@@ -32,21 +32,24 @@
 </head>
 <body>
     <h1>🚧 Xozircha tamirda 🚧<br>404</h1>
-    <div id="timer">Vaqt: 10:00</div>
+    <div id="timer">Vaqt: 10</div>
 
     <script>
         let timerElement = document.getElementById('timer');
-        let seconds = 0;
+        let timeLeft = 10;  // Boshlang‘ich vaqt (sekundda)
 
         function updateTimer() {
-            seconds++;
-            let minutes = Math.floor(seconds / 60);
-            let remainingSeconds = seconds % 60;
-            if (remainingSeconds < 10) remainingSeconds = '0' + remainingSeconds;
-            timerElement.innerText = 'Vaqt: ' + minutes + ':' + remainingSeconds;
+            if (timeLeft > 0) {
+                timeLeft--; // Sekundni kamaytirish
+                timerElement.innerText = 'Vaqt: ' + timeLeft;
+            } else {
+                timerElement.innerText = 'Vaqt tugadi!';
+                clearInterval(timerInterval); // Sanash tugadi, intervalni to‘xtatish
+            }
         }
 
-        setInterval(updateTimer, 1000);
+        // Har bir sekundda `updateTimer()` funksiyasini chaqirish
+        let timerInterval = setInterval(updateTimer, 1000);
     </script>
 </body>
 </html>
