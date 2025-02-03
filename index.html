@@ -1,99 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Block Avoidance Game</title>
-  <style>
-    /* Insert the provided CSS here */
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App Tamirlanmoqda</title>
+    <style>
+        /* Ekranda markazga joylashtirish */
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* Yozuvni pastga joylashtirish */
+        #bottom-text {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            
+        }
+       
+    </style>
 </head>
 <body>
-  <div class="screen">
-    <div class="sky">
-      <!-- Sky gradient animation -->
-    </div>
+    <h1>🚧 Xozircha tamirda 🚧<br> 404 </h1>
     
-    <!-- Base of the game -->
-    <div class="base">
-      <!-- Floating block containers -->
-    </div>
+
+     <div id="bottom-text">funksiyaning tuliq ishlab chiqish sanasi:07.02.2025</div>
     
-    <!-- Points display -->
-    <div class="points">Score: <span id="score">0</span></div>
-    
-    <!-- Start Button -->
-    <input type="checkbox" id="start" class="start">
-    <div class="start">
-      <h1>Start Game</h1>
-    </div>
-    
-    <!-- Restart Button -->
-    <button onclick="restartGame()">Restart</button>
-  </div>
-
-  <script>
-    let score = 0;
-    let isGameOver = false;
-
-    // Handle game start logic
-    document.getElementById("start").addEventListener("change", () => {
-      startGame();
-    });
-
-    function startGame() {
-      // Initialize game settings
-      score = 0;
-      isGameOver = false;
-      updateScore();
-      
-      // Start moving blocks, rotate the base, etc.
-      moveBase();
-      moveBlocks();
-    }
-
-    function moveBase() {
-      // Simulate the base's movement (this could involve an interval or animations)
-      // Update base position based on game logic
-    }
-
-    function moveBlocks() {
-      // Move blocks randomly or in predefined patterns
-      // Check if player interacts with them or avoids them
-    }
-
-    function updateScore() {
-      // Update score display
-      document.getElementById("score").innerText = score;
-    }
-
-    function gameOver() {
-      isGameOver = true;
-      // Show end screen and restart button
-    }
-
-    function restartGame() {
-      // Reset game to the initial state
-      document.location.reload();
-    }
-
-    // Collision detection logic (based on position of base and blocks)
-    function checkCollision() {
-      // If the base intersects with a block
-      if (/* condition for collision */) {
-        gameOver();
-      }
-    }
-
-    // Other game logic (move blocks, interact with base, etc.)
-    setInterval(() => {
-      if (!isGameOver) {
-        checkCollision();
-        // Add logic to increase score, update positions of blocks, etc.
-      }
-    }, 100);
-  </script>
+   
 </body>
 </html>
-
-
