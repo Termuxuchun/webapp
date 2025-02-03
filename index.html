@@ -39,9 +39,9 @@
         let timeLeft = 10;  // Boshlang‘ich vaqt (sekundda)
 
         function updateTimer() {
-            if (timeLeft > 0) {
-                timeLeft--; // Sekundni kamaytirish
+            if (timeLeft >= 0) {  // Agar vaqt hali tugamagan bo‘lsa
                 timerElement.innerText = 'Vaqt: ' + timeLeft;
+                timeLeft--; // Sekundni kamaytirish
             } else {
                 timerElement.innerText = 'Vaqt tugadi!';
                 clearInterval(timerInterval); // Sanash tugadi, intervalni to‘xtatish
