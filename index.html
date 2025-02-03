@@ -1,192 +1,99 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Racing Simulator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #282828;
-        }
-
-        canvas {
-            display: block;
-            margin: 0 auto;
-            background-color: #111;
-            border: 1px solid #fff;
-        }
-
-        .controls {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            color: white;
-            font-size: 18px;
-        }
-
-        .controls button {
-            padding: 10px;
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .controls button:hover {
-            background-color: #45a049;
-        }
-
-        #status {
-            font-size: 20px;
-        }
-
-        #start-button {
-            background-color: #f44336;
-        }
-
-        #start-button:hover {
-            background-color: #e53935;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Block Avoidance Game</title>
+  <style>
+    /* Insert the provided CSS here */
+  </style>
 </head>
 <body>
-    <div class="controls">
-        <button id="start-button">Start Race</button>
-        <div id="status">Press Start to Begin</div>
+  <div class="screen">
+    <div class="sky">
+      <!-- Sky gradient animation -->
     </div>
-    <canvas id="gameCanvas"></canvas>
+    
+    <!-- Base of the game -->
+    <div class="base">
+      <!-- Floating block containers -->
+    </div>
+    
+    <!-- Points display -->
+    <div class="points">Score: <span id="score">0</span></div>
+    
+    <!-- Start Button -->
+    <input type="checkbox" id="start" class="start">
+    <div class="start">
+      <h1>Start Game</h1>
+    </div>
+    
+    <!-- Restart Button -->
+    <button onclick="restartGame()">Restart</button>
+  </div>
 
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const statusElement = document.getElementById("status");
+  <script>
+    let score = 0;
+    let isGameOver = false;
 
-        // Canvas size
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    // Handle game start logic
+    document.getElementById("start").addEventListener("change", () => {
+      startGame();
+    });
 
-        // Game variables
-        let car = {
-            x: canvas.width / 2 - 25,
-            y: canvas.height - 100,
-            width: 50,
-            height: 100,
-            speed: 5,
-            movingLeft: false,
-            movingRight: false,
-            movingUp: false,
-            movingDown: false
-        };
+    function startGame() {
+      // Initialize game settings
+      score = 0;
+      isGameOver = false;
+      updateScore();
+      
+      // Start moving blocks, rotate the base, etc.
+      moveBase();
+      moveBlocks();
+    }
 
-        let obstacles = [];
-        let gameInterval;
-        let raceStarted = false;
+    function moveBase() {
+      // Simulate the base's movement (this could involve an interval or animations)
+      // Update base position based on game logic
+    }
 
-        function startRace() {
-            raceStarted = true;
-            obstacles = [];
-            car.x = canvas.width / 2 - 25;
-            car.y = canvas.height - 100;
-            statusElement.innerText = "Race in Progress!";
-            generateObstacles();
-            gameLoop();
-        }
+    function moveBlocks() {
+      // Move blocks randomly or in predefined patterns
+      // Check if player interacts with them or avoids them
+    }
 
-        function stopRace() {
-            clearInterval(gameInterval);
-            statusElement.innerText = "Game Over! Press Start to Restart";
-            raceStarted = false;
-        }
+    function updateScore() {
+      // Update score display
+      document.getElementById("score").innerText = score;
+    }
 
-        function generateObstacles() {
-            setInterval(() => {
-                if (raceStarted) {
-                    const obstacleX = Math.random() * canvas.width;
-                    const obstacleWidth = Math.random() * 100 + 50;
-                    obstacles.push({ x: obstacleX, y: -100, width: obstacleWidth, height: 20, speed: 3 });
-                }
-            }, 1000);
-        }
+    function gameOver() {
+      isGameOver = true;
+      // Show end screen and restart button
+    }
 
-        function updateCarMovement() {
-            if (car.movingLeft && car.x > 0) car.x -= car.speed;
-            if (car.movingRight && car.x + car.width < canvas.width) car.x += car.speed;
-            if (car.movingUp && car.y > 0) car.y -= car.speed;
-            if (car.movingDown && car.y + car.height < canvas.height) car.y += car.speed;
-        }
+    function restartGame() {
+      // Reset game to the initial state
+      document.location.reload();
+    }
 
-        function updateObstacles() {
-            for (let i = 0; i < obstacles.length; i++) {
-                obstacles[i].y += obstacles[i].speed;
-                if (obstacles[i].y > canvas.height) {
-                    obstacles.splice(i, 1);
-                    i--;
-                }
-            }
-        }
+    // Collision detection logic (based on position of base and blocks)
+    function checkCollision() {
+      // If the base intersects with a block
+      if (/* condition for collision */) {
+        gameOver();
+      }
+    }
 
-        function detectCollision() {
-            for (let i = 0; i < obstacles.length; i++) {
-                if (
-                    car.x < obstacles[i].x + obstacles[i].width &&
-                    car.x + car.width > obstacles[i].x &&
-                    car.y < obstacles[i].y + obstacles[i].height &&
-                    car.y + car.height > obstacles[i].y
-                ) {
-                    stopRace();
-                    break;
-                }
-            }
-        }
-
-        function drawCar() {
-            ctx.fillStyle = "red";
-            ctx.fillRect(car.x, car.y, car.width, car.height);
-        }
-
-        function drawObstacles() {
-            ctx.fillStyle = "green";
-            for (let i = 0; i < obstacles.length; i++) {
-                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
-            }
-        }
-
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            updateCarMovement();
-            updateObstacles();
-            detectCollision();
-            drawCar();
-            drawObstacles();
-        }
-
-        document.getElementById("start-button").addEventListener("click", () => {
-            if (!raceStarted) {
-                startRace();
-            }
-        });
-
-        window.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowLeft") car.movingLeft = true;
-            if (e.key === "ArrowRight") car.movingRight = true;
-            if (e.key === "ArrowUp") car.movingUp = true;
-            if (e.key === "ArrowDown") car.movingDown = true;
-        });
-
-        window.addEventListener("keyup", (e) => {
-            if (e.key === "ArrowLeft") car.movingLeft = false;
-            if (e.key === "ArrowRight") car.movingRight = false;
-            if (e.key === "ArrowUp") car.movingUp = false;
-            if (e.key === "ArrowDown") car.movingDown = false;
-        });
-    </script>
+    // Other game logic (move blocks, interact with base, etc.)
+    setInterval(() => {
+      if (!isGameOver) {
+        checkCollision();
+        // Add logic to increase score, update positions of blocks, etc.
+      }
+    }, 100);
+  </script>
 </body>
 </html>
+
 
