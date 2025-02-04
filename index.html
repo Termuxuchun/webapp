@@ -3,45 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web App Tamirlanmoqda</title>
-    <style>
-        /* Ekranda markazga joylashtirish */
-        body, html {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-        h1 {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        /* Yozuvni pastga joylashtirish */
-        #bottom-text {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            font-size: 16px;
-            color: #555;
-            
-        }
-       
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="main.js"></script>
+    <title>Document</title>
 </head>
 <body>
-    <h1>🚧 Xozircha tamirda 🚧<br> 404 </h1>
-    
+    <canvas class="webgl"></canvas>
 
-     <div id="bottom-text">funksiyaning tuliq ishlab chiqish sanasi:07.02.2025</div>
-    
-   
+<!-- <div id="loader">
+  <h1>Loading...</h1>
+</div> -->
+
+<script type="x-shader/x-vertex" id="vertexshaderCandle">
+  void main() {
+	  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+</script>
+
+<script type="x-shader/x-fragment" id="fragmentshaderCandle">
+	uniform float time; 
+	uniform float colorSpeed;
+	uniform float delay; 
+	uniform vec3 baseColor;
+	uniform vec3 finalColor;
+	varying vec2 vUv;
+
+	void main() {
+		float animatedTime = time - delay;
+		animatedTime = mod(animatedTime, colorSpeed);
+		float mixFactor = animatedTime / colorSpeed;
+		vec3 finalColor = mix(baseColor, finalColor, mixFactor);
+		gl_FragColor = vec4(finalColor, 1.0);
+	}
+</script>
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.min.js"></script>
+<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://unpkg.com/three@0.126.0/examples/js/controls/OrbitControls.js"></script> -->
+
 </body>
 </html>
