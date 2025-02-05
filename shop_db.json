@@ -1,0 +1,22 @@
+{
+    "1": {"name": "1 Bitcoin", "price": "1 mlrd. 000,000.00 sum"},
+    "2": {"name": "1 Ethereum", "price": "500 mln. 000,000.00 sum"},
+    "3": {"name": "1 Litecoin", "price": "30 mln. 000,000.00 sum"},
+    "4": {"name": "1 Cardano", "price": "4 mln. 000,000.00 sum"},
+    "5": {"name": "1 Polkadot", "price": "2.5 mln. 000,000.00 sum"},
+    "6": {"name": "1 XRP", "price": "6,000.00 sum"},
+    "7": {"name": "1 Solana", "price": "20 mln. 000,000.00 sum"},
+    "8": {"name": "1 Binance Coin", "price": "400 mln. 000,000.00 sum"},
+    "9": {"name": "1 Dogecoin", "price": "5,000.00 sum"},
+    "10": {"name": "1 Shiba Inu", "price": "1,000.00 sum"}, 
+    "11": {"name": "1 Monero", "price": "12 mln. 000,000.00 sum"},
+    "12": {"name": "1 TRON", "price": "50,000.00 sum"},
+    "13": {"name": "1 Uniswap", "price": "200 mln. 000,000.00 sum"},
+    "14": {"name": "1 Chainlink", "price": "150 mln. 000,000.00 sum"},
+    "15": {"name": "1 VeChain", "price": "2 mln. 000,000.00 sum"},
+    "16": {"name": "1 FTX Token", "price": "10 mln. 000,000.00 sum"},
+    "17": {"name": "1 Terra", "price": "5 mln. 000,000.00 sum"},
+    "18": {"name": "1 Luna", "price": "3 mln. 000,000.00 sum"},
+    "19": {"name": "1 Axie Infinity", "price": "400 mln. 000,000.00 sum"},
+    "20": {"name": "1 Stellar", "price": "1 mln. 000,000.00 sum"}
+}
