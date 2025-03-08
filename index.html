@@ -1,306 +1,64 @@
-<?php
-
-
-
-
-?>
-
-
-
 <!DOCTYPE html>
-<html>
-
-
-<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="img/icon1.png">
-    <title>@OmadbekPY</title>
+    <title>Tap Coin</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #000;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            color: #eee;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        .tugma {
-            max-width: 350px;
-            margin: 0 auto;
-            padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: space-around;
-            /*background-color: #686f82;*/
-            background: linear-gradient(180deg, #000 10%, orange 90%);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .tugma .quote {
-            width: 95%;
-            height: 45px;
-            padding: 10px;
-            margin: -5px auto 30px auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 16px;
-            border-radius: 15px;
-            background-color: #8f8f8f61;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .tugma .quote .chap {
-            display: flex;
-            align-items: center;
-        }
-
-        .tugma .quote img {
-            width: 50px;
-            margin: 0 10px 0 0;
-            border-radius: 12px;
-        }
-
-        .tugma .balans {
-            display: flex;
-            align-items: center;
-            font-size: 45px;
-            margin: 0 auto;
-        }
-
-        .tugma .balans img {
-            width: 35px;
-            margin: 0 10px 0 0;
-        }
-
-        .tugma .lavozim {
-            display: flex;
-            align-items: center;
-            /* font-size: 40px; */
-            margin: 15px auto 95px auto;
-        }
-
-        .click {
-            width: 285px;
-            margin: 0 auto;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
         }
-
-        .click img {
-            width: 100%;
-            transition: .4;
-        }
-
-        .click img:active {
-            transform: scale(0.97);
-        }
-
-        .tugma .footer {
-            width: 95%;
-            height: 60px;
-            padding: 10px;
-            margin: 25px auto 0 auto;
+        #coin {
+            width: 120px;
+            height: 120px;
+            background-color: gold;
+            border-radius: 50%;
             display: flex;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
         }
-
-        .tugma .footer .chaqmoq {
-            display: flex;
-            align-items: center;
+        #coin:active {
+            transform: scale(0.9);
         }
-
-        .tugma .footer .chaqmoq .chaq {
-            font-size: 35px;
-        }
-
-        .tugma .footer .chaqmoq .tez {
-            display: flex;
-            flex-direction: column;
-            font-size: 20px;
-        }
-
-        .tugma .footer .chaqmoq .tez .kelishi {
-            font-size: 11px !important;
-        }
-
-        .tugma .footer .sozlama {
-            max-width: 220px;
-            height: 65px;
-            display: flex;
-            align-items: center;
-            margin: auto 0 auto 5px;
-            border-radius: 15px;
-            background-color: #8f8f8f70;
-            box-shadow: 0 0 10px rgba(1, 1, 1, 0.1);
-        }
-
-        .tugma .footer .sozlama .as {
-            width: 35px;
-            font-size: 15px;
-            padding: 0 20px;
-            margin: 0 auto;
-            border-right: 1px solid #999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .tugma .footer .sozlama .as3 {
-            border-right: 0px solid #999 !important;
-        }
-
-        .tugma .footer .sozlama .as .text1 {
-            font-size: 23px;
-        }
-
-        .tugma .footer .sozlama .as .text2 {
-            font-size: 11px;
-        }
-
-        a{
-            text-decoration: none;
-            color: #007bff;
-        }
-        .cid{
-            text-decoration: none;
-            color: #000;
-            font-size: 1px;
-        }
-
-        .tugma .tugashi {
-            width: 100%;
-            height: 14px;
-            margin: 12px auto 10px auto;
-            border-radius: 15px;
-            background: linear-gradient(90deg, #848da1 10%, #ddd 90%);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        #counter {
+            margin-top: 20px;
+            font-size: 24px;
         }
     </style>
 </head>
-
 <body>
-<div id="url" class="cid">https://m3854.myxvest.ru/Xzcoinbot-hmzmzh/balans.php?apicid=</div>
-<div id="cid" class="cid"></div>
-    <div class='tugma'>
-        <div class="quote">
-            <div class="chap">
-                  <a href="https://t.me/Icecoinsbot"><img class="tgme_page_photo_image" src="https://clicker.blogu.tc/img/20240307_160440.jpg"></a>                <div class="glvn">
-                    <div class="knomi">EtnaCoin</div>
-                    <div class="balansi">🔵1.000.000.000</div>
-                </div>
-            </div>
-            <div class="ong">💎Etna Coin</div>
-        </div>
-        <div class="balans">
-            <img src="img/1tyn2.png" alt="">
-            <div class="son" id="balans">0</div>
-        </div>
-        <div class="lavozim">( Diamond ) • 💎 Etna Coin ></div>
-        <div class="click" onclick="myFunction()">
-            <img class="clickimg" src='img/tanga1.png'>
-        </div>
-        <div class="footer">
-            <div class="chaqmoq">
-                <div class="chaq">⚡</div>
-                <div class="tez">
-                    <div class="ketishi" id="ketishi">4000</div>
-                    <div class="kelishi" id="kelishi">/5000</div>
-                </div>
-            </div>
-            <div class="sozlama">
-                <div class="as">
-                    <div class="text1">🔥</div>
-                    <div class="text2">Boost</div>
-                </div>
-                <div class="as">
-                    <div class="text1">🗄️</div>
-                    <div class="text2">sell</div>
-                </div>
-                <div class="as as3">
-                    <div class="text1">👤</div>
-                    <div class="text2">Frends</div>
-                </div>
-            </div>
-        </div>
-        <div class="tugashi"></div>
-    </div>
+    <h1>Tap Coin</h1>
+    <div id="coin">💰</div>
+    <div id="counter">Coins: <span id="count">0</span></div>
 
     <script>
-        var divElement = document.getElementById("balans");
-        var numberValue = parseInt(divElement.textContent);
-        var i = numberValue;
+        let count = 0;
+        const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id || "guest";
         
-        var divElement2 = document.getElementById("cid");
-        var numberValue2 = parseInt(divElement2.textContent);
-        var cid = numberValue2;
-        
-        var divElement3 = document.getElementById("url");
-        var numberValue3 = divElement3.textContent;
-        var burl = numberValue3;
-        
-        var k = 4000;
-        
-            setInterval(function () {
-                if(k < 5000){
-                    k++;
-                    
-                    document.getElementById("ketishi").innerHTML = k;
-                }
-            }, 1500);
-        
-        function myFunction() {
-            if (k >= 0) {
-                document.getElementById("balans").innerHTML = ++i;
-                document.getElementById("ketishi").innerHTML = k--;
-            
-
-
-fetch(''+burl+cid+'&apibalans='+i+'')
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log(data);
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
-            }
+        // Load saved coins from localStorage (or backend if needed)
+        if (localStorage.getItem(`coins_${userId}`)) {
+            count = parseInt(localStorage.getItem(`coins_${userId}`));
+            document.getElementById('count').innerText = count;
         }
         
-        function bos(){
-    let body = this.document.querySelectorAll('body');
-
-    for(let i = 0; i < body.length; i++){
-        body[i].addEventListener("keydown", function(e){
-            e.preventDefault();
-        })
-        body[i].addEventListener('contextmenu',function(e){
-            e.preventDefault();
-        })
-
-        body[i].addEventListener('mousedown',function(e){
-            e.preventDefault();
-        })
-    }
-};
-bos();
+        document.getElementById('coin').addEventListener('click', () => {
+            count++;
+            document.getElementById('count').innerText = count;
+            localStorage.setItem(`coins_${userId}`, count);
+        });
     </script>
 </body>
-
-
-
 </html>
